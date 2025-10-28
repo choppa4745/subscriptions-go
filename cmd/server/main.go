@@ -40,7 +40,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Optionally auto-migrate (still provide migrations with migrate tool)
 	if err := gormDB.AutoMigrate(&model.Subscription{}); err != nil {
 		log.Fatal("auto migrate failed:", err)
 	}
@@ -51,11 +50,10 @@ func main() {
 
 	r := gin.Default()
 
-	// routes
 	r.POST("/subscriptions", handler.Create)
-	r.GET("/subscriptions", handler.List)            // листинг всех подписок
-	r.GET("/subscriptions/:id", handler.Get)         // подписка по ID
-	r.GET("/subscriptions/summary", handler.Summary) // суммарная информация
+	r.GET("/subscriptions", handler.List)
+	r.GET("/subscriptions/:id", handler.Get)
+	r.GET("/subscriptions/summary", handler.Summary)
 	r.PUT("/subscriptions/:id", handler.Update)
 	r.DELETE("/subscriptions/:id", handler.Delete)
 	// TODO: add GET /subscriptions, GET/PUT/DELETE /subscriptions/:id (implement in handler)

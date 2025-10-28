@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
 	"subscriptions-go/model"
 	"subscriptions-go/repository"
+
+	"github.com/google/uuid"
 )
 
 type SubscriptionService struct {
@@ -27,14 +28,12 @@ func (s *SubscriptionService) Create(sub *model.Subscription) error {
 		return errors.New("price cannot be negative")
 	}
 
-	// Приводим даты к первому дню месяца
 	sub.StartDate = time.Date(sub.StartDate.Year(), sub.StartDate.Month(), 1, 0, 0, 0, 0, sub.StartDate.Location())
 	if sub.EndDate != nil {
 		ed := time.Date(sub.EndDate.Year(), sub.EndDate.Month(), 1, 0, 0, 0, 0, sub.EndDate.Location())
 		sub.EndDate = &ed
 	}
 
-	// Проверка пересечения подписок с тем же ServiceName
 	existing, err := s.repo.List(&sub.UserID, &sub.ServiceName)
 	if err != nil {
 		return err
@@ -78,7 +77,7 @@ func (s *SubscriptionService) Update(sub *model.Subscription) error {
 
 	for _, e := range existing {
 		if e.ID == sub.ID {
-			continue // пропускаем саму себя
+			continue
 		}
 		eEnd := e.EndDate
 		if eEnd == nil {
@@ -107,7 +106,6 @@ func (s *SubscriptionService) List(userID *uuid.UUID, serviceName *string) ([]*m
 	return s.repo.List(userID, serviceName)
 }
 
-// Sum с учётом вечных подписок и пересечений периодов
 func (s *SubscriptionService) Sum(periodStart, periodEnd time.Time, userID *uuid.UUID, serviceName *string) (int64, error) {
 	ps := time.Date(periodStart.Year(), periodStart.Month(), 1, 0, 0, 0, 0, time.UTC)
 	pe := time.Date(periodEnd.Year(), periodEnd.Month(), 1, 0, 0, 0, 0, time.UTC)
